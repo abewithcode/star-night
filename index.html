@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star night</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="scene">
         <div class="moon"></div>
@@ -14,5 +16,84 @@
         <img src="cloud2.png" alt="cloud2" class="cloud2">
         <img src="cloud3.png" alt="cloud3" class="cloud3">
     </div>
+    <!--star-->
+    <script type="text/javascript">
+        let stars = [];
+        let animationId;
+
+        function createStars() {
+            // 清除現有星星
+            const existingStars = document.querySelectorAll('.scene i');
+            existingStars.forEach(star => star.remove());
+            stars = [];
+
+            const scene = document.querySelector('.scene');
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            // 根據螢幕大小調整星星數量
+            let starCount;
+            if (screenWidth < 768) {
+                starCount = 200; // 手機版較少星星
+            } else if (screenWidth < 1024) {
+                starCount = 350; // 平板版中等數量
+            } else {
+                starCount = 500; // 桌機版較多星星
+            }
+
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement("i");
+
+                // 使用百分比和viewport單位
+                const x = Math.random() * 100; // 0-100%
+                const y = Math.random() * 80; // 0-80% (避免與森林重疊)
+                const duration = Math.random() * 10;
+                const size = Math.random() * 0.3 + 0.1; // 使用vmin單位
+
+                star.style.left = x + '%';
+                star.style.top = y + '%';
+                star.style.width = (0.2 + size) + 'vmin';
+                star.style.height = (0.2 + size) + 'vmin';
+                star.style.animationDuration = (5 + duration) + 's';
+                star.style.animationDelay = duration + 's';
+
+                scene.appendChild(star);
+                stars.push({
+                    element: star,
+                    originalX: x,
+                    originalY: y,
+                    size: size
+                });
+            }
+        }
+
+        function handleResize() {
+            // 使用 requestAnimationFrame 來優化性能
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+
+            animationId = requestAnimationFrame(() => {
+                createStars();
+            });
+        }
+
+        // 初始化
+        createStars();
+
+        // 監聽視窗大小變化
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            // 使用 debounce 來避免過度頻繁的重新計算
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(handleResize, 150);
+        });
+
+        // 監聽裝置方向變化
+        window.addEventListener('orientationchange', () => {
+            setTimeout(handleResize, 100);
+        });
+    </script>
 </body>
+
 </html>
